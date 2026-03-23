@@ -1,18 +1,23 @@
 const express = require('express');
-const { validateUsername } = require("../middlewares/user");
 const router = express.Router();
 
-router.post('/', validateUsername, (req, res) => {
-    const user = req.body;
-    res.status(201).json({
-        user
-    });
-});
+const { validateUsername } = require("../middlewares/user");
+const { 
+    getAllUsers, 
+    getUser, 
+    createUser, 
+    deleteUser, 
+    updateUser 
+} = require('../services/users');
 
-router.get('/:id', (req, res) => {
-    res.status(200).json({
-        user: req.params.id
-    });
-});
+router.post('/', validateUsername, createUser);
+
+router.get('/:id', getUser);
+
+router.get('/', getAllUsers);
+
+router.delete('/:id', deleteUser);
+
+router.put('/:id', updateUser);
 
 module.exports = router;
