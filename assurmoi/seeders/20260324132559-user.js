@@ -11,11 +11,18 @@ module.exports = {
         firstname: 'John',
         lastname: 'Doe',
         email: 'john.doe@gmail.com'
+      },
+      {
+        username: 'AGaborit',
+        password: 'Motdepasse123',
+        firstname: 'Audrey',
+        lastname: 'Gaborit',
+        email: 'audrey.gaborit@gmail.com'
       }
   ], {});
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('User', { username: 'John Doe' });
+    await queryInterface.bulkDelete('Users', { password: 'Motdepasse123' }, {});
   }
 };

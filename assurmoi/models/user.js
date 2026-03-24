@@ -30,13 +30,13 @@ const User = (dbInstance, DataTypes) => {
                 allowNull: true,
             },
             email: {
-                type: DataTypes.STRING(50),
-                allowNull: true,
+                type: DataTypes.STRING(50)
             }
         },
         {
             sequelize: dbInstance,
             modelName: 'User',
+            timestamps: false
         }
     )
     return User;
