@@ -1,5 +1,5 @@
 const { Op } = require("sequelize");
-const { Request } = require('../models');
+const { Request, dbInstance } = require('../models');
 
 const getAllRequests = async (req, res) => {    
     let queryParam = {};
@@ -12,49 +12,91 @@ const getAllRequests = async (req, res) => {
         };
     }
     
-    const requests = await Request.findAll(queryParam);
-    
-    res.status(200).json({
-        requests: [],
-        filters: queryParam
-    });
+    try {
+        const requests = await Request.findAll(queryParam);
+        
+        res.status(200).json({
+            requests,
+            filters: queryParam
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: 'Error on requests',
+            stacktrace: error.errors
+        });
+    }
 };
 
 const getRequest = async (req, res) => {
     const id = req.params.id;
     
-    return res.status(200).json({
-        request: { id }
-    });
+    try {
+        const request = await Request.findOne({
+            where: { id }
+        });
+        
+        if (!request) {
+            return res.status(404).json({
+                message: 'Request not found'
+            });
+        }
+        
+        res.status(200).json({
+            request
+        });
+    } catch (error) {
+        return res.status(400).json({
+            message: 'Error on request',
+            stacktrace: error.errors
+        });
+    }
 };
 
 const createRequest = async (req, res) => {
-    const data = req.body;
-    
-    if (!data.sinister_id) {
+    const transaction = await dbInstance.transaction();
+
+    try {
+        const request = await Request.create(req.body, {transaction});
+
+        transaction.commit();
+        return res.status(201).json({
+            message: 'Request created',
+            request
+        });
+    } catch (error) {
+        transaction.rollback();
         return res.status(400).json({
-            message: 'sinister_id required'
+            message: 'Error on request creation',
+            stacktrace: error.errors
         });
     }
-
-    return res.status(201).json({
-        message: 'Request created',
-        request: data
-    });
 };
 
-
 const updateRequest = async (req, res) => {
-    const id = req.params.id;
-    const data = req.body;
+    const transaction = await dbInstance.transaction();
     
-    return res.status(200).json({
-        message: 'Request updated',
-        request: {
-            id,
-            ...data
-        }
-    });
+    try {
+        const requestBody = req.body;
+
+        const request = await Request.update({
+            requestBody
+        }, { 
+            where: { id: req.params.id }, 
+            transaction 
+        });
+        
+        transaction.commit();
+        return res.status(200).json({
+            message: 'Successfully updated',
+            request
+        });
+    } catch (error) {
+        transaction.rollback();
+        return res.status(400).json({
+            message: 'Error on request update',
+            stacktrace: error.errors
+        });
+    }
 };
 
 module.exports = {

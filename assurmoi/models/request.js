@@ -31,7 +31,6 @@ const Request = (dbInstance, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-
       status: {
         type: DataTypes.ENUM(
           'INIATE',
