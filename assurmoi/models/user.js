@@ -1,15 +1,7 @@
 const { Model, DataTypes } = require('sequelize');
 
 const User = (dbInstance, DataTypes) => {
-    class User extends Model {
-        // Jointure avec Person
-        // static associate(models) {
-        //     this.belongsTo(models.Person, {
-        //         foreignKey: 'person_id',
-        //         as: 'Person',
-        //     })
-        // }
-    }
+    class User extends Model {}
 
     User.init(
         {
@@ -30,7 +22,8 @@ const User = (dbInstance, DataTypes) => {
                 allowNull: true,
             },
             email: {
-                type: DataTypes.STRING(50)
+                type: DataTypes.STRING(50),
+                allowNull: false,
             }
         },
         {

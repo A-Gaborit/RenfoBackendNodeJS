@@ -3,12 +3,6 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    /**
-     * Add altering commands here.
-     *
-     * Example:
-     * await queryInterface.createTable('users', { id: Sequelize.INTEGER });
-     */
     await queryInterface.createTable('Users', {
       id: {
         allowNull: false,
@@ -34,6 +28,29 @@ module.exports = {
       },
       email: {
         type: Sequelize.STRING(50),
+        allowNull: false,
+      },
+      role: {
+        type: Sequelize.ENUM('admin', 'manager', 'account_manager', 'coordinator', 'policyholder'),
+        allowNull: false,
+        defaultValue: 'policyholder',
+      },
+      token: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      refreshToken: {
+        type: Sequelize.TEXT,
+        allowNull: true,
+      },
+      two_step_code: {
+        type: Sequelize.STRING(6),
+        allowNull: true,
+      },
+      active: {
+        type: Sequelize.BOOLEAN,
+        allowNull: false,
+        defaultValue: true,
       }
     });
   },
