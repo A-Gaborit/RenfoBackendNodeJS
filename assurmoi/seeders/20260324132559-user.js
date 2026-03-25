@@ -19,7 +19,7 @@ module.exports = {
         lastname: 'Gaborit',
         email: 'audrey.gaborit@gmail.com'
       }
-  ], {});
+    ], {});
   },
 
   async down (queryInterface, Sequelize) {

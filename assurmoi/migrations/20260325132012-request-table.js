@@ -21,8 +21,15 @@ module.exports = {
         onDelete: 'CASCADE',
       },
       status: {
-        type: Sequelize.ENUM,
-        values: ['pending', 'in_progress', 'closed'],
+        type: Sequelize.ENUM(
+          'INIATE',
+          'REQUEST_EXPERTISE',          
+          'EXPERTISE_PLANNED',
+          'EXPERTISE_DONE',
+          'REPAIR_PLANNED',
+          'REPAIR_DONE',
+          'CLOSED'
+        ),
         allowNull: false,
       },
       expertise_plan_date: {

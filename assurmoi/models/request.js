@@ -33,7 +33,15 @@ const Request = (dbInstance, DataTypes) => {
       },
 
       status: {
-        type: DataTypes.ENUM('pending', 'in_progress', 'closed'),
+        type: DataTypes.ENUM(
+          'INIATE',
+          'REQUEST_EXPERTISE',          
+          'EXPERTISE_PLANNED',
+          'EXPERTISE_DONE',
+          'REPAIR_PLANNED',
+          'REPAIR_DONE',
+          'CLOSED'
+        ),
         allowNull: false,
       },
 
