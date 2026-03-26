@@ -22,7 +22,7 @@ module.exports = {
       },
       status: {
         type: Sequelize.ENUM(
-          'INIATE',
+          'INITIATE',
           'REQUEST_EXPERTISE',          
           'EXPERTISE_PLANNED',
           'EXPERTISE_DONE',

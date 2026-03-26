@@ -3,7 +3,6 @@ const { Request, dbInstance } = require('../models');
 
 const getAllRequests = async (req, res) => {    
     let queryParam = {};
-    
     if (req.query.status) {
         queryParam.where = {
             status: {
@@ -27,12 +26,10 @@ const getAllRequests = async (req, res) => {
     }
 };
 
-const getRequest = async (req, res) => {
-    const id = req.params.id;
-    
+const getRequest = async (req, res) => {  
     try {
         const request = await Request.findOne({
-            where: { id }
+            where: { id: req.params.id }
         });
         
         if (!request) {
@@ -54,7 +51,6 @@ const getRequest = async (req, res) => {
 
 const createRequest = async (req, res) => {
     const transaction = await dbInstance.transaction();
-
     try {
         const request = await Request.create(req.body, {transaction});
 
@@ -74,10 +70,8 @@ const createRequest = async (req, res) => {
 
 const updateRequest = async (req, res) => {
     const transaction = await dbInstance.transaction();
-    
     try {
         const requestBody = req.body;
-
         const request = await Request.update({
             requestBody
         }, { 

@@ -2,7 +2,6 @@ const { Sinister, dbInstance } = require("../models");
 
 const getAllSinisters = async (req, res) => {
     const { validated } = req.query;
-    
     let queryParam = {};
     
     if (validated !== undefined) {
@@ -27,11 +26,9 @@ const getAllSinisters = async (req, res) => {
 }
 
 const getSinister = async (req, res) => {
-    const sinisterId = req.params.id;
-
     try {
         const sinister = await Sinister.findOne({
-            where: { id: sinisterId }
+            where: { id: req.params.id }
         });
 
         if (!sinister) {
@@ -53,7 +50,6 @@ const getSinister = async (req, res) => {
 
 const createSinister = async (req, res) => {
     const transaction = await dbInstance.transaction();
-
     try {
         const sinister = await Sinister.create(req.body, { transaction });
         
@@ -73,10 +69,8 @@ const createSinister = async (req, res) => {
 
 const updateSinister = async (req, res) => {
     const transaction = await dbInstance.transaction();
-
     try {
         const sinisterBody = req.body;
-
         const sinister = await Sinister.update({
             sinisterBody
         }, { 
@@ -100,7 +94,6 @@ const updateSinister = async (req, res) => {
 
 const validateSinister = async (req, res) => {    
     const transaction = await dbInstance.transaction();
-
     try {
         const { validated } = req.body;
         const sinister =  await sinister.update({ 

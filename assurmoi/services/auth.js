@@ -89,8 +89,6 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
     const { password } = req.body;
     const token = req.headers.authorization;
-
-    console.log(token)
     
     if (!token || !password) {
         return res.status(400).json({
