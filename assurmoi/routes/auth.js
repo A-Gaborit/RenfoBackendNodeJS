@@ -1,9 +1,12 @@
 const express = require('express');
 const router = express.Router();
 
+const { validateAuthentication } = require("../middlewares/auth");
+
 const {
     login,
     refresh,
+    logout,
     verify2FA,
     forgotPassword,
     resetPassword
@@ -11,7 +14,9 @@ const {
 
 router.post('/login', login);
 
-router.post('/refresh', refresh)
+router.post('/refresh', validateAuthentication, refresh);
+
+router.post('/logout', validateAuthentication, logout);
 
 router.post('/2fa/verify', verify2FA);
 

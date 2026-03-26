@@ -1,21 +1,31 @@
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { User } = require('../models');
+require('dotenv').config();
+
 const login = async (req, res) => {
-    const { email, password } = req.body;
     try {
-        if (email === "test@test.fr") {
-            return res.status(200).json({
-                message: "Login successful",
-                token: "fake-jwt-token-12345",
-                user: {
-                    id: 1,
-                    email: email,
-                    password: password
-                }
-            });
-        } else {
-            return res.status(401).json({
-                message: "Invalid credentials"
-            });
-        }
+        const { email, password } = req.body;
+
+        const user = await User.findOne({ 
+            where: { email: email } 
+        });
+        
+        // En production, renvoyer le même message pour éviter de divulguer des informations
+        if (!user) return res.status(401).json({ message: "User not found" });
+
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        if (!isPasswordValid) return res.status(401).json({message: "Incorrect password"});
+        
+        const token = jwt.sign({user: user.clean()}, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        user.token = token;
+        user.save();
+
+        return res.status(200).json({
+            token: token,
+            user: user.clean()
+        });
     } catch (err) {
         return res.status(400).json({
             message: "Error connection",
@@ -25,31 +35,38 @@ const login = async (req, res) => {
 };
 
 const refresh = async(req, res) => {
-    const token = req.headers.authorization;
-    
-    if (!token) {
-        return res.status(400).json({
-            message: "Token is required"
-        });
-    }
-    
-    if (token === "Bearer fake-jwt-token-12345") {
+    try {
+        const newToken = jwt.sign({ 
+            id: req.user.id, 
+            email: req.user.email 
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        
+        req.user.token = newToken;
+        req.user.save();
+        
         return res.status(200).json({
             message: "Token refreshed successfully",
-            token: "Bearer fake-jwt-token-new-54321",
-            user: {
-                id: 1,
-                username: "testuser",
-                email: "test@example.com"
-            }
+            token: newToken,
+            user: req.user.clean()
+        });
+        
+    } catch (error) {
+        return res.status(401).json({
+            message: "Invalid or expired token"
         });
     }
-    
-    return res.status(401).json({
-        message: "Invalid or expired token"
-    });
 };
 
+const logout = async (req, res) => {
+    try {
+        req.user.token = null;
+        req.user.save();
+        
+        return res.status(200).json({ message: "Logout successful" });
+    } catch (error) {
+        return res.status(401).json({ message: "Logout failed" });
+    }
+};
 
 const verify2FA = async (req, res) => {    
     const token = req.headers.authorization;
@@ -108,6 +125,7 @@ const resetPassword = async (req, res) => {
 
 module.exports = {
     login,
+    logout,
     refresh,
     verify2FA,
     forgotPassword,

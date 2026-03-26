@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { validateUsername } = require("../middlewares/user");
+const { validateAuthentication } = require("../middlewares/auth");
 const { 
     getAllUsers, 
     getUser, 
@@ -10,7 +11,7 @@ const {
     deactivateUser 
 } = require('../services/users');
 
-router.post('/', validateUsername, createUser);
+router.post('/', validateAuthentication, validateUsername, createUser);
 
 router.get('/:id', getUser);
 

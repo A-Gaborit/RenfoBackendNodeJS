@@ -1,20 +1,22 @@
 'use strict';
+const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-
+    const hashedPassword = await bcrypt.hash('MotDeP@sse123', parseInt(process.env.BCRYPT_SALT));
     await queryInterface.bulkInsert('Users', [
       {
         username: 'John Doe',
-        password: 'Motdepasse123',
+        password: hashedPassword,
         firstname: 'John',
         lastname: 'Doe',
         email: 'john.doe@gmail.com'
       },
       {
         username: 'AGaborit',
-        password: 'Motdepasse123',
+        password: hashedPassword,
         firstname: 'Audrey',
         lastname: 'Gaborit',
         email: 'audrey.gaborit@gmail.com'
@@ -23,6 +25,7 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.bulkDelete('Users', { password: 'Motdepasse123' }, {});
+    const hashedPassword = await bcrypt.hash('MotDeP@sse123', parseInt(process.env.BCRYPT_SALT));
+    await queryInterface.bulkDelete('Users', { password: hashedPassword }, {});
   }
 };

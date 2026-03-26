@@ -1,5 +1,7 @@
 const { Op } = require('sequelize');
 const { User, dbInstance } = require('../models');
+const bcrypt = require('bcrypt');
+require('dotenv').config();
 
 const  getAllUsers = async (req, res) => {
     let queryParam = {};
@@ -31,17 +33,18 @@ const createUser = async (req, res) => {
     const transaction = await dbInstance.transaction();
     try {
         const { username, firstname, lastname, email, password } = req.body;
+        const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT));
         const user = await User.create({
             username,
             firstname,
             lastname,
             email,
-            password
+            password : hashedPassword
         }, { transaction });
         
         transaction.commit();
         return res.status(201).json({
-            user
+            user: user.clean()
         });
     } catch (error) {
         transaction.rollback();
