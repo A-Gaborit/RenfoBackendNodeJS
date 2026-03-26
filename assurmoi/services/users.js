@@ -57,16 +57,6 @@ const updateUser = async (req, res) => {
     try {
         const { username, firstname, lastname, email, password } = req.body;
         const user_id = req.params.id;
-        // const user = await User.update({
-        //     username,
-        //     firstname,
-        //     lastname,
-        //     email,
-        //     password
-        // }, { 
-        //     where: { id: user_id }, 
-        //     transaction 
-        // });
 
         const user = await User.findOne({
             where: { id: user_id }
@@ -91,31 +81,27 @@ const updateUser = async (req, res) => {
     }
 }
 
-const deleteUser = async (req, res) => {
+const deactivateUser = async (req, res) => {
     const transaction = await dbInstance.transaction();
     try {
         const user_id = req.params.id;
 
-        const deleted = await User.destroy({
+        const user = await User.update({
+            active: false
+        }, {
             where: { id: user_id },
             transaction
         });
 
-        if(!deleted) {
-            await transaction.rollback();
-            return res.status(404).json({
-                message: "User not found"
-            });
-        }
-
         await transaction.commit();
         return res.status(200).json({
-            message: "Successfully deleted"
+            message: "Successfully deactivated",
+            user
         });
     } catch (error) {
         await transaction.rollback();
         return res.status(400).json({
-            message: "Error on user deletion",
+            message: "Error on user deactivation",
             stacktrace: error.errors
         });
     }
@@ -126,5 +112,5 @@ module.exports = {
     getUser,
     createUser,
     updateUser,
-    deleteUser
+    deactivateUser
 }

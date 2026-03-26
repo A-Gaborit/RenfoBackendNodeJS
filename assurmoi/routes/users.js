@@ -6,8 +6,8 @@ const {
     getAllUsers, 
     getUser, 
     createUser, 
-    deleteUser, 
-    updateUser 
+    updateUser, 
+    deactivateUser 
 } = require('../services/users');
 
 router.post('/', validateUsername, createUser);
@@ -16,7 +16,7 @@ router.get('/:id', getUser);
 
 router.get('/', getAllUsers);
 
-router.delete('/:id', deleteUser);
+router.delete('/:id', deactivateUser);
 
 router.put('/:id', updateUser);
 

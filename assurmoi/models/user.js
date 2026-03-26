@@ -24,6 +24,11 @@ const User = (dbInstance, DataTypes) => {
             email: {
                 type: DataTypes.STRING(50),
                 allowNull: false,
+            }, 
+            active: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: true
             }
         },
         {
