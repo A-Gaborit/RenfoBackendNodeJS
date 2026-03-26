@@ -95,9 +95,8 @@ const updateSinister = async (req, res) => {
 const validateSinister = async (req, res) => {    
     const transaction = await dbInstance.transaction();
     try {
-        const { validated } = req.body;
-        const sinister =  await sinister.update({ 
-            validated 
+        const sinister = await Sinister.update({ 
+            validated: true 
         }, {
             where: { id: req.params.id },
             transaction

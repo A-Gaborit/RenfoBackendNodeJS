@@ -57,6 +57,30 @@ const createDocument = async (req, res) => {
     }
 }
 
+const validateDocument = async (req, res) => {    
+    const transaction = await dbInstance.transaction();
+    try {
+        const document = await Document.update({ 
+            validated: true 
+        }, {
+            where: { id: req.params.id },
+            transaction
+        });
+
+        transaction.commit();
+        return res.status(200).json({
+            message: "Document validated successfully",
+            document
+        });
+    } catch (error) {
+        transaction.rollback();
+        return res.status(400).json({
+            message: 'Error on document validation',
+            stacktrace: error.errors
+        });
+    }
+}
+
 const deleteDocument = async (req, res) => {
     const transaction = await dbInstance.transaction();
     try {
@@ -85,5 +109,6 @@ module.exports = {
     getAllDocuments,
     getDocument,
     createDocument,
+    validateDocument,
     deleteDocument
 }
