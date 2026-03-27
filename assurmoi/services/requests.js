@@ -1,5 +1,6 @@
 const { Op } = require("sequelize");
 const { Request, dbInstance } = require('../models');
+const { transitions } = require('../machines/request.machine');
 
 const getAllRequests = async (req, res) => {    
     let queryParam = {};
@@ -93,9 +94,77 @@ const updateRequest = async (req, res) => {
     }
 };
 
+async function transitionRequest(req, res) {
+  try {
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: 'Status is required' });
+    }
+
+    const request = await Request.findOne({ where: { id: req.params.id } });
+
+    if (!request) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const currentState = request.status;
+    const stateTransitions = transitions[currentState];
+
+    if (!stateTransitions || !stateTransitions[status]) {
+      return res.status(400).json({
+        error: `Status '${status}' not allowed from state '${currentState}'`
+      });
+    }
+
+    const transition = stateTransitions[status];
+
+    // Vérifier les champs requis
+    if (transition.requiredFields) {
+      const missingFields = transition.requiredFields.filter(field => !req.body[field]);
+      
+      if (missingFields.length > 0) {
+        return res.status(400).json({
+          error: `Missing required fields: ${missingFields.join(', ')}`
+        });
+      }
+    }
+
+    // Appliquer la transition
+    if (transition.apply) {
+      transition.apply(request, req.body);
+    }
+
+    // Mettre à jour le statut
+    if (transition.next) {
+      request.status = transition.next;
+    }
+
+    // Gérer la fermeture
+    if (transition.close) {
+      request.closed = true;
+      request.status = 'CLOSED';
+    }
+
+    await request.save();
+
+    return res.status(200).json({
+      message: 'Transition applied successfully',
+      data: request
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: 'Internal server error'
+    });
+  }
+}
+
 module.exports = {
     getAllRequests,
     getRequest,
     createRequest,
-    updateRequest
+    updateRequest,
+    transitionRequest
 };
