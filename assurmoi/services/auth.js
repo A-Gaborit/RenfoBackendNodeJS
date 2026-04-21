@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
+const { mailLogin } = require('../utils/mailer');
 require('dotenv').config();
 
 const login = async (req, res) => {
@@ -22,6 +23,9 @@ const login = async (req, res) => {
         user.token = token;
         user.save();
 
+        const mailStatus = await mailLogin(user);
+        if (mailStatus !== true) console.error("Login notification email failed to send");
+        
         return res.status(200).json({
             token: token,
             user: user.clean()
