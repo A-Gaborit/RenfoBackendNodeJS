@@ -119,7 +119,6 @@ async function transitionRequest(req, res) {
 
     const transition = stateTransitions[status];
 
-    // Vérifier les champs requis
     if (transition.requiredFields) {
       const missingFields = transition.requiredFields.filter(field => !req.body[field]);
       
@@ -130,17 +129,14 @@ async function transitionRequest(req, res) {
       }
     }
 
-    // Appliquer la transition
     if (transition.apply) {
       transition.apply(request, req.body);
     }
 
-    // Mettre à jour le statut
     if (transition.next) {
       request.status = transition.next;
     }
 
-    // Gérer la fermeture
     if (transition.close) {
       request.closed = true;
       request.status = 'CLOSED';

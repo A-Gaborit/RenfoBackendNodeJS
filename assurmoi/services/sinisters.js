@@ -1,4 +1,4 @@
-const { Sinister, dbInstance } = require("../models");
+const { Sinister, Request, dbInstance } = require("../models");
 
 const getAllSinisters = async (req, res) => {
     const { validated } = req.query;
@@ -92,23 +92,31 @@ const updateSinister = async (req, res) => {
     }
 }
 
-const validateSinister = async (req, res) => {    
+const validateSinister = async (req, res) => {
     const transaction = await dbInstance.transaction();
     try {
-        const sinister = await Sinister.update({ 
-            validated: true 
-        }, {
-            where: { id: req.params.id },
-            transaction
-        });
+        const sinisterId = req.params.id;
 
-        transaction.commit();
+        const existingSinister = await Sinister.findByPk(sinisterId);
+
+        if (existingSinister.validated) return res.status(400).json({ message: "Sinister is already validated" });
+
+        existingSinister.validated = true;
+        await existingSinister.save({ transaction });
+
+        const request = await Request.create({
+            sinister_id: sinisterId,
+            status: 'INITIATE'
+        }, { transaction });
+
+        await transaction.commit();
         return res.status(200).json({
-            message: "Sinister validated successfully",
-            sinister
+            message: "Sinister validated successfully and request created",
+            existingSinister,
+            request
         });
     } catch (error) {
-        transaction.rollback();
+        await transaction.rollback();
         return res.status(400).json({
             message: 'Error on sinister validation',
             stacktrace: error.errors
