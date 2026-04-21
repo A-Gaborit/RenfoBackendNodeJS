@@ -11,9 +11,9 @@ const {
     transitionRequest 
 } = require('../services/requests');
 
-router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR), getAllRequests);
+router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR, ROLES.POLICYHOLDER), getAllRequests);
 
-router.get('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR), getRequest);
+router.get('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR, ROLES.POLICYHOLDER), getRequest);
 
 // router.post('/', validateAuthentication, createRequest);
 

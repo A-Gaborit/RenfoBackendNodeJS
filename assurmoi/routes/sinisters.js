@@ -12,9 +12,9 @@ const {
 } = require('../services/sinisters');
 
 
-router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), getAllSinisters);
+router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER, ROLES.POLICYHOLDER), getAllSinisters);
 
-router.get('/:id', validateAuthentication,authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), getSinister);
+router.get('/:id', validateAuthentication,authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER, ROLES.POLICYHOLDER), getSinister);
 
 router.post('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), createSinister);
 

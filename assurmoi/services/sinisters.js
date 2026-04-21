@@ -1,21 +1,35 @@
-const { Sinister, Request, dbInstance } = require("../models");
+const { Sinister, Request, History, dbInstance } = require("../models");
+const { ROLES } = require("../middlewares/auth");
 
-const getAllSinisters = async (req, res) => {
-    const { validated } = req.query;
-    let queryParam = {};
-    
-    if (validated !== undefined) {
-        queryParam.where = {
-            validated: validated === 'true'
-        };
-    }
-    
+const getAllSinisters = async (req, res) => {    
     try {
+        const { validated } = req.query;
+        const user = req.user;
+        let queryParam = {};
+        
+        if (validated !== undefined) {
+            queryParam.where = {
+                validated: validated === 'true'
+            };
+        }
+
+        if (user.role === ROLES.POLICYHOLDER) {
+            const histories = await History.findAll({
+                where: { user_id: user.id },
+                attributes: ['sinister_id']
+            });
+            const sinisterIds = histories.map(h => h.sinister_id).filter(id => id !== null);
+
+            queryParam.where = {
+                ...queryParam.where,
+                id: sinisterIds
+            };
+        }
+
         const sinisters = await Sinister.findAll(queryParam);
         
-        res.status(200).json({
-            sinisters,
-            filters: queryParam
+        return res.status(200).json({
+            sinisters
         });
     } catch (error) {
         return res.status(500).json({
@@ -27,8 +41,26 @@ const getAllSinisters = async (req, res) => {
 
 const getSinister = async (req, res) => {
     try {
+        const user = req.user;
+        const sinisterId = req.params.id;
+
+        if (user.role === ROLES.POLICYHOLDER) {
+            const history = await History.findOne({
+                where: { 
+                    user_id: user.id,
+                    sinister_id: sinisterId
+                }
+            });
+
+            if (!history) {
+                return res.status(403).json({
+                    message: 'Access denied. You can only view your own sinisters.'
+                });
+            }
+        }
+
         const sinister = await Sinister.findOne({
-            where: { id: req.params.id }
+            where: { id: sinisterId }
         });
 
         if (!sinister) {
@@ -37,7 +69,7 @@ const getSinister = async (req, res) => {
             });
         }
 
-        res.status(200).json({
+        return res.status(200).json({
             sinister
         });
     } catch (error) {

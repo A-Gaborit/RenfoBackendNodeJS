@@ -1,23 +1,37 @@
 const { Op } = require("sequelize");
-const { Request, dbInstance } = require('../models');
+const { Request, Sinister, History, dbInstance } = require('../models');
 const { transitions } = require('../machines/request.machine');
 
-const getAllRequests = async (req, res) => {    
-    let queryParam = {};
-    if (req.query.status) {
-        queryParam.where = {
-            status: {
-                [Op.eq]: req.query.status
-            }
-        };
-    }
-    
+const getAllRequests = async (req, res) => {
     try {
+        let queryParam = {};
+        if (req.query.status) {
+            queryParam.where = {
+                status: {
+                    [Op.eq]: req.query.status
+                }
+            };
+        }
+
+        if (req.user.role === 'policyholder') {
+            const userHistories = await History.findAll({
+                where: { user_id: req.user.id },
+                attributes: ['sinister_id']
+            });
+            const sinisterIds = userHistories.map(h => h.sinister_id).filter(id => id !== null);
+
+            queryParam.where = {
+                ...queryParam.where,
+                sinister_id: {
+                    [Op.in]: sinisterIds
+                }
+            };
+        }
+
         const requests = await Request.findAll(queryParam);
         
-        res.status(200).json({
-            requests,
-            filters: queryParam
+        return res.status(200).json({
+            requests
         });
     } catch (error) {
         return res.status(400).json({
@@ -38,8 +52,23 @@ const getRequest = async (req, res) => {
                 message: 'Request not found'
             });
         }
-        
-        res.status(200).json({
+
+        if (req.user.role === 'policyholder') {
+            const historyEntry = await History.findOne({
+                where: {
+                    user_id: req.user.id,
+                    sinister_id: request.sinister_id
+                }
+            });
+
+            if (!historyEntry) {
+                return res.status(403).json({
+                    message: 'Access denied. You can only view your own requests.'
+                });
+            }
+        }
+
+        return res.status(200).json({
             request
         });
     } catch (error) {
