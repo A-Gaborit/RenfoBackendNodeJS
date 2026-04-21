@@ -30,6 +30,34 @@ const validateAuthentication = (req, res, next) => {
     });
 }
 
+const authorizeRoles = (...allowedRoles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({ message: 'Authentication required' });
+        }
+
+        const userRole = req.user.role;
+
+        if (!allowedRoles.includes(userRole)) {
+            return res.status(403).json({
+                message: 'Access denied. You don\'t have permission.'
+            });
+        }
+
+        next();
+    };
+};
+
+const ROLES = {
+    ADMIN: 'admin',
+    MANAGER: 'manager',
+    ACCOUNT_MANAGER: 'account_manager',
+    COORDINATOR: 'coordinator',
+    POLICYHOLDER: 'policyholder'
+};
+
 module.exports = {
-    validateAuthentication
+    validateAuthentication,
+    authorizeRoles,
+    ROLES
 }

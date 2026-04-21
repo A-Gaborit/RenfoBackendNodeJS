@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+const { validateAuthentication, authorizeRoles, ROLES } = require("../middlewares/auth");
+
 const {
     getAllDocuments,
     getDocument,
@@ -9,14 +11,14 @@ const {
     deleteDocument
 } = require('../services/documents');
 
-router.get('/', getAllDocuments)
+router.get('/', validateAuthentication, getAllDocuments);
 
-router.get('/:id', getDocument)
+router.get('/:id', validateAuthentication, getDocument);
 
-router.post('/', createDocument)
+router.post('/', validateAuthentication, createDocument);
 
-router.patch('/:id/validate', validateDocument)
+router.patch('/:id/validate', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER), validateDocument);
 
-router.delete('/:id', deleteDocument)
+router.delete('/:id', validateAuthentication, deleteDocument);
 
 module.exports = router;

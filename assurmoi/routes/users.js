@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { validateUsername } = require("../middlewares/user");
-const { validateAuthentication } = require("../middlewares/auth");
+const { validateAuthentication, authorizeRoles, ROLES } = require("../middlewares/auth");
 const { 
     getAllUsers, 
     getUser, 
@@ -11,14 +11,14 @@ const {
     deactivateUser 
 } = require('../services/users');
 
-router.post('/', validateAuthentication, validateUsername, createUser);
+router.post('/', validateAuthentication, authorizeRoles(ROLES.ADMIN), validateUsername, createUser);
 
-router.get('/:id', getUser);
+router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN), getAllUsers);
 
-router.get('/', getAllUsers);
+router.get('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN), getUser);
 
-router.delete('/:id', deactivateUser);
+router.delete('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN), deactivateUser);
 
-router.put('/:id', updateUser);
+router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN), updateUser);
 
 module.exports = router;

@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+const { validateAuthentication, authorizeRoles, ROLES } = require("../middlewares/auth");
+
 const {
     getAllSinisters,
     getSinister,
@@ -9,14 +11,15 @@ const {
     validateSinister
 } = require('../services/sinisters');
 
-router.get('/', getAllSinisters);
 
-router.get('/:id', getSinister);
+router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), getAllSinisters);
 
-router.post('/', createSinister);
+router.get('/:id', validateAuthentication,authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), getSinister);
 
-router.put('/:id', updateSinister);
+router.post('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), createSinister);
 
-router.patch('/:id/validate', validateSinister)
+router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), updateSinister);
+
+router.patch('/:id/validate', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), validateSinister);
 
 module.exports = router;
