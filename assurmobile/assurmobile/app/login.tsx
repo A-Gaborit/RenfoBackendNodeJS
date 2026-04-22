@@ -1,6 +1,7 @@
 import { Text, View } from "react-native";
 import { Button, Card, HelperText, TextInput } from "react-native-paper";
 import { useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function LoginScreen() {
     const [email, setEmail] = useState('');
@@ -20,7 +21,12 @@ export default function LoginScreen() {
                 }),
             });
             console.log('login',response);
+            if (response.ok) setError("Echec de connexion");
+            setError(null);
+            const { token } = await response.json();
+            await AsyncStorage.setItem('token', token);
         } catch (error: any) {
+            console.log('Login error', error);
             setError(error.message);
         }
     };

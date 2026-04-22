@@ -1,11 +1,23 @@
 import { Pressable, Text, View } from "react-native";
 import { Button } from "react-native-paper";
-import { useState } from "react";
-import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { Redirect, useRouter } from "expo-router";
+import { useCurrentUser } from "@/contexts/UserContext";
 
 export default function Index() {
   const [value, onChangeTitle] = useState("test");
   const router = useRouter();
+  const user = useCurrentUser();
+  
+ 
+  // useEffect(() => {
+    if (!user) {
+      return <Redirect href="/login" />;
+    }
+  // }, [user]);
+
+  
+  
   return (
     <View
       style={{
