@@ -7,9 +7,11 @@ const initRoutes = require('./routes');
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors({
-    credentials: true,
-    origin: ['http://localhost:8081']
+    origin: ['http://localhost:8081'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
 }));
+app.options('*', cors());
 
 initRoutes(app);
 

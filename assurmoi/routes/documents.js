@@ -11,7 +11,7 @@ const {
     deleteDocument
 } = require('../services/documents');
 
-router.get('/', validateAuthentication, getAllDocuments);
+router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER), getAllDocuments);
 
 router.get('/:id', validateAuthentication, getDocument);
 
