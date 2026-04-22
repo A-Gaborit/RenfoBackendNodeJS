@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors({
     credentials: true,
-    origin: ['http://example.com', '*'] // whitelist
+    origin: ['http://localhost:8081']
 }));
 
 initRoutes(app);
