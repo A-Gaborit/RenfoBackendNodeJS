@@ -33,17 +33,41 @@ const Request = (dbInstance, DataTypes) => {
       },
       status: {
         type: DataTypes.ENUM(
+          // Initial states
           'INITIATE',
-          'REQUEST_EXPERTISE',          
+          'REQUEST_EXPERTISE',
           'EXPERTISE_PLANNED',
           'EXPERTISE_DONE',
-          'REPAIR_PLANNED',
-          'REPAIR_DONE',
+          // Scenario 1: Véhicule réparable
+          'INTERVENTION_WAITING_PICKUP_SCHEDULE',
+          'WAITING_PICKUP_SCHEDULE',
+          'PICKUP_PLANNED',
+          'INTERVENTION_IN_PROGRESS',
+          'RESTITUTION_WAITING_SCHEDULE',
+          'RESTITUTION_IN_PROGRESS',
+          'INVOICE_WAITING',
+          'INVOICE_PAID_WAITING_WARRANTY',
+          'CLOSURE_DECISION',
+          'INVOICE_THIRD_PARTY_PENDING_CASE1',
+          // Scenario 2: Véhicule non réparable
+          'VALUATION_SENT',
+          'PICKUP_SCHEDULE_WAITING_RIB',
+          'PICKUP_PLANNED_CASE2',
+          'COMPENSATION_WAITING_PAYMENT',
+          'CLOSURE_DECISION_CASE2',
+          'INVOICE_THIRD_PARTY_PENDING_CASE2',
           'CLOSED'
         ),
         allowNull: false,
       },
-
+      responsibility: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        validate: {
+          min: 0,
+          max: 100
+        }
+      },
       expertise_plan_date: DataTypes.DATE,
       expertise_effective_date: DataTypes.DATE,
       expertise_report_recieved: DataTypes.DATE,

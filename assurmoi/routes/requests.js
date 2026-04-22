@@ -6,16 +6,16 @@ const { validateAuthentication, authorizeRoles, ROLES } = require("../middleware
 const { 
     getAllRequests, 
     getRequest, 
-    createRequest, 
     updateRequest,
-    transitionRequest 
+    transitionRequest,
+    getRequestTransitions
 } = require('../services/requests');
 
 router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR, ROLES.POLICYHOLDER), getAllRequests);
 
 router.get('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR, ROLES.POLICYHOLDER), getRequest);
 
-// router.post('/', validateAuthentication, createRequest);
+router.get('/:id/transitions', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR, ROLES.POLICYHOLDER), getRequestTransitions);
 
 router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR), updateRequest);
 

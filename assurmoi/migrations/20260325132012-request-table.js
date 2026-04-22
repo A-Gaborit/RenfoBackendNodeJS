@@ -22,15 +22,37 @@ module.exports = {
       },
       status: {
         type: Sequelize.ENUM(
+          // Initial states
           'INITIATE',
-          'REQUEST_EXPERTISE',          
+          'REQUEST_EXPERTISE',
           'EXPERTISE_PLANNED',
           'EXPERTISE_DONE',
-          'REPAIR_PLANNED',
-          'REPAIR_DONE',
+          // Scenario 1: Véhicule réparable
+          'INTERVENTION_WAITING_PICKUP_SCHEDULE',
+          'WAITING_PICKUP_SCHEDULE',
+          'PICKUP_PLANNED',
+          'INTERVENTION_IN_PROGRESS',
+          'RESTITUTION_WAITING_SCHEDULE',
+          'RESTITUTION_IN_PROGRESS',
+          'INVOICE_WAITING',
+          'INVOICE_PAID_WAITING_WARRANTY',
+          'CLOSURE_DECISION',
+          'INVOICE_THIRD_PARTY_PENDING_CASE1',
+          // Scenario 2: Véhicule non réparable
+          'VALUATION_SENT',
+          'PICKUP_SCHEDULE_WAITING_RIB',
+          'PICKUP_PLANNED_CASE2',
+          'COMPENSATION_WAITING_PAYMENT',
+          'CLOSURE_DECISION_CASE2',
+          'INVOICE_THIRD_PARTY_PENDING_CASE2',
+          // Final state
           'CLOSED'
         ),
         allowNull: false,
+      },
+      responsibility: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
       },
       expertise_plan_date: {
         type: Sequelize.DATE,

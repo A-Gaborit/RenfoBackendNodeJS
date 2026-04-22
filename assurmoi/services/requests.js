@@ -1,6 +1,6 @@
 const { Op } = require("sequelize");
 const { Request, Sinister, dbInstance } = require('../models');
-const { transitions } = require('../machines/request.machine');
+const { transitions, isValidTransition, getNextState, getAvailableTransitions } = require('../machines/request.machine');
 const { ROLES } = require('../middlewares/auth');
 
 const getAllRequests = async (req, res) => {
@@ -124,36 +124,50 @@ const updateRequest = async (req, res) => {
 };
 
 async function transitionRequest(req, res) {
+  const transaction = await dbInstance.transaction();
   try {
-    const { status } = req.body;
+    const { action } = req.body;
 
-    if (!status) {
-      return res.status(400).json({ error: 'Status is required' });
+    if (!action) {
+      return res.status(400).json({ error: 'Action is required' });
     }
 
-    const request = await Request.findOne({ where: { id: req.params.id } });
+    const request = await Request.findOne({ 
+      where: { id: req.params.id },
+      transaction 
+    });
 
     if (!request) {
+      await transaction.rollback();
       return res.status(404).json({ error: 'Request not found' });
     }
 
-    const currentState = request.status;
-    const stateTransitions = transitions[currentState];
-
-    if (!stateTransitions || !stateTransitions[status]) {
+    const currentState = request.status;    
+    if (!isValidTransition(currentState, action, request, req.body)) {
+      await transaction.rollback();
       return res.status(400).json({
-        error: `Status '${status}' not allowed from state '${currentState}'`
+        error: `Action '${action}' not allowed from state '${currentState}' or conditions not met`
       });
     }
 
-    const transition = stateTransitions[status];
-
+    const transition = transitions[currentState][action];
     if (transition.requiredFields) {
-      const missingFields = transition.requiredFields.filter(field => !req.body[field]);
+      const missingFields = transition.requiredFields.filter(field => req.body[field] === undefined || req.body[field] === null);
       
       if (missingFields.length > 0) {
+        await transaction.rollback();
         return res.status(400).json({
           error: `Missing required fields: ${missingFields.join(', ')}`
+        });
+      }
+    }
+
+    if (transition.condition) {
+      const conditionMet = transition.condition(request, req.body);
+      if (!conditionMet) {
+        await transaction.rollback();
+        return res.status(400).json({
+          error: `Conditions for transition '${action}' not met`
         });
       }
     }
@@ -162,16 +176,16 @@ async function transitionRequest(req, res) {
       transition.apply(request, req.body);
     }
 
-    if (transition.next) {
-      request.status = transition.next;
-    }
+    const nextState = getNextState(currentState, action);
+    if (nextState) request.status = nextState;
 
     if (transition.close) {
       request.closed = true;
       request.status = 'CLOSED';
     }
 
-    await request.save();
+    await request.save({ transaction });
+    await transaction.commit();
 
     return res.status(200).json({
       message: 'Transition applied successfully',
@@ -179,9 +193,41 @@ async function transitionRequest(req, res) {
     });
 
   } catch (error) {
+    await transaction.rollback();
     console.error(error);
     return res.status(500).json({
-      error: 'Internal server error'
+      error: 'Internal server error',
+      details: error.message
+    });
+  }
+}
+
+async function getRequestTransitions(req, res) {
+  try {
+    const request = await Request.findOne({ where: { id: req.params.id } });
+
+    if (!request) {
+      return res.status(404).json({ error: 'Request not found' });
+    }
+
+    const availableTransitions = getAvailableTransitions(request.status, request);
+
+    return res.status(200).json({
+      currentState: request.status,
+      availableActions: availableTransitions
+        .filter(t => t.available)
+        .map(t => ({
+          action: t.action,
+          nextState: t.next,
+          requiredFields: t.requiredFields || [],
+          close: t.close || false
+        }))
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      error: 'Internal server error',
+      details: error.message
     });
   }
 }
@@ -191,5 +237,6 @@ module.exports = {
     getRequest,
     createRequest,
     updateRequest,
-    transitionRequest
+    transitionRequest,
+    getRequestTransitions
 };

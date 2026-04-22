@@ -20,6 +20,6 @@ router.post('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAG
 
 router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), updateSinister);
 
-router.patch('/:id/validate', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), validateSinister);
+router.patch('/:id/validate', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER), validateSinister);
 
 module.exports = router;
