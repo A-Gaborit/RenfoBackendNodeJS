@@ -14,7 +14,8 @@ module.exports = {
         context: 'Accident sur la rocade',
         driver_responsability: true,
         driver_engaged_responsability: 0,
-        validated: false
+        validated: false,
+        user_id: 1
       },
       {
         license_plate: 'EF-456-GH',
@@ -26,7 +27,8 @@ module.exports = {
         context: 'Collision à un carrefour',
         driver_responsability: false,
         driver_engaged_responsability: 50,
-        validated: true
+        validated: true,
+        user_id: 1
       },
       {
         license_plate: 'IJ-789-KL',
@@ -38,7 +40,8 @@ module.exports = {
         context: 'Sortie de route',
         driver_responsability: true,
         driver_engaged_responsability: 0,
-        validated: false
+        validated: false,
+        user_id: 2
       }
     ], {});
   },

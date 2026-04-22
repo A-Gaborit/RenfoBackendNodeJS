@@ -28,6 +28,11 @@ const Sinister = (dbInstance, DataTypes) => {
         foreignKey: 'insurance_certificate',
         as: 'insuranceCertificate',
       });
+
+      Sinister.belongsTo(models.User, {
+        foreignKey: 'user_id',
+        as: 'User',
+      });
     }
   }
 
@@ -72,6 +77,10 @@ const Sinister = (dbInstance, DataTypes) => {
       cni_driver: DataTypes.INTEGER,
       vehicle_registration_certificate: DataTypes.INTEGER,
       insurance_certificate: DataTypes.INTEGER,
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+      },
       validated: {
         type: DataTypes.BOOLEAN,
         allowNull: false,

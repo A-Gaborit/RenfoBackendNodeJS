@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
-const { Request, Sinister, History, dbInstance } = require('../models');
+const { Request, Sinister, dbInstance } = require('../models');
 const { transitions } = require('../machines/request.machine');
+const { ROLES } = require('../middlewares/auth');
 
 const getAllRequests = async (req, res) => {
     try {
@@ -13,12 +14,11 @@ const getAllRequests = async (req, res) => {
             };
         }
 
-        if (req.user.role === 'policyholder') {
-            const userHistories = await History.findAll({
+        if (req.user.role === ROLES.POLICYHOLDER) {
+            const userSinisters = await Sinister.findAll({
                 where: { user_id: req.user.id },
-                attributes: ['sinister_id']
             });
-            const sinisterIds = userHistories.map(h => h.sinister_id).filter(id => id !== null);
+            const sinisterIds = userSinisters.map(s => s.id);
 
             queryParam.where = {
                 ...queryParam.where,
@@ -53,15 +53,15 @@ const getRequest = async (req, res) => {
             });
         }
 
-        if (req.user.role === 'policyholder') {
-            const historyEntry = await History.findOne({
+        if (req.user.role === ROLES.POLICYHOLDER) {
+            const sinister = await Sinister.findOne({
                 where: {
-                    user_id: req.user.id,
-                    sinister_id: request.sinister_id
+                    id: request.sinister_id,
+                    user_id: req.user.id
                 }
             });
 
-            if (!historyEntry) {
+            if (!sinister) {
                 return res.status(403).json({
                     message: 'Access denied. You can only view your own requests.'
                 });

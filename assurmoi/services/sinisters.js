@@ -1,4 +1,4 @@
-const { Sinister, Request, History, dbInstance } = require("../models");
+const { Sinister, Request, dbInstance } = require("../models");
 const { ROLES } = require("../middlewares/auth");
 
 const getAllSinisters = async (req, res) => {    
@@ -14,15 +14,9 @@ const getAllSinisters = async (req, res) => {
         }
 
         if (user.role === ROLES.POLICYHOLDER) {
-            const histories = await History.findAll({
-                where: { user_id: user.id },
-                attributes: ['sinister_id']
-            });
-            const sinisterIds = histories.map(h => h.sinister_id).filter(id => id !== null);
-
             queryParam.where = {
                 ...queryParam.where,
-                id: sinisterIds
+                user_id: user.id
             };
         }
 
@@ -44,21 +38,6 @@ const getSinister = async (req, res) => {
         const user = req.user;
         const sinisterId = req.params.id;
 
-        if (user.role === ROLES.POLICYHOLDER) {
-            const history = await History.findOne({
-                where: { 
-                    user_id: user.id,
-                    sinister_id: sinisterId
-                }
-            });
-
-            if (!history) {
-                return res.status(403).json({
-                    message: 'Access denied. You can only view your own sinisters.'
-                });
-            }
-        }
-
         const sinister = await Sinister.findOne({
             where: { id: sinisterId }
         });
@@ -66,6 +45,12 @@ const getSinister = async (req, res) => {
         if (!sinister) {
             return res.status(404).json({
                 message: 'Sinister not found'
+            });
+        }
+
+        if (user.role === ROLES.POLICYHOLDER && sinister.user_id !== user.id) {
+            return res.status(403).json({
+                message: 'Access denied. You can only view your own sinisters.'
             });
         }
 
