@@ -5,7 +5,6 @@ const basename = path.basename(__filename)
 const db = {}
 
 const { Sequelize } = require('sequelize')
-const User = require('./user')
 require('dotenv').config()
 
 const dbInstance = new Sequelize(`mariadb://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, {

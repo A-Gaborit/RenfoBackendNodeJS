@@ -1,23 +1,19 @@
 import { Pressable, Text, View } from "react-native";
 import { Button } from "react-native-paper";
-import { useEffect, useState } from "react";
-import { Redirect, useRouter } from "expo-router";
+import { useState } from "react";
+import { useRouter } from "expo-router";
 import { useCurrentUser } from "@/contexts/UserContext";
+import { Redirect } from "expo-router";
 
 export default function Index() {
   const [value, onChangeTitle] = useState("test");
   const router = useRouter();
   const user = useCurrentUser();
-  
- 
-  // useEffect(() => {
-    if (!user) {
-      return <Redirect href="/login" />;
-    }
-  // }, [user]);
 
-  
-  
+  // if (!user) {
+  //   return <Redirect href="/login" />;
+  // }
+
   return (
     <View
       style={{
@@ -26,11 +22,11 @@ export default function Index() {
         alignItems: "center",
       }}
     >
-      <Text>To edit this value: { value }</Text>
-      <Pressable onPress={() => onChangeTitle("New title")}> 
+      <Text>To Edit this value : {value}.</Text>
+      <Pressable onPress={() => onChangeTitle("New title")}>
         <Text>Press on this link</Text>
       </Pressable>
-      <Button 
+      <Button
         mode="contained"
         onPress={() => router.navigate("/login")}
       >
