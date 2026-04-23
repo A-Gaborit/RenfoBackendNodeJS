@@ -1,15 +1,14 @@
 
-import { Card, Text, Divider } from "react-native-paper";
-import { useRouter } from "expo-router";
-import { colors } from "../theme";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { TouchableOpacity, View, StyleSheet } from "react-native";
-import { Sinister } from "../types/Sinister";
+import { Card, Text, Divider } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { RelativePathString, useRouter } from "expo-router";
 
-function getValidationConfig(validated: boolean) {
-  if (validated) return { label: "Validé", color: "#22C55E", bgColor: "#DCFCE7" };
-  return { label: "En attente", color: "#FFA500", bgColor: "#FFF4E6" };
-}
+import { colors } from "../theme";
+import { Sinister } from "../types/Sinister";
+import { StatusBadge } from "./ui/StatusBadge";
+import { getValidationConfig } from "./ui/StatusConfig";
+import { formatDateTime } from "./ui/DateFormatter";
 
 
 export function SinisterCard({ sinister }: { sinister: Sinister }) {
@@ -18,8 +17,7 @@ export function SinisterCard({ sinister }: { sinister: Sinister }) {
 
   return (
     <TouchableOpacity
-      onPress={() => router.push(`/sinisters/${sinister.id}` as any)}
-      activeOpacity={0.8}
+      onPress={() => router.push(`/sinisters/${sinister.id}` as RelativePathString)}
     >
       <Card style={styles.card}>
         <Card.Content>
@@ -30,15 +28,13 @@ export function SinisterCard({ sinister }: { sinister: Sinister }) {
                 {sinister.license_plate}
               </Text>
             </View>
-            <View style={[styles.statusBadge, { backgroundColor: statusConfig.bgColor }]}>
-              <Text style={[styles.statusText, { color: statusConfig.color }]}>
-                {statusConfig.label}
-              </Text>
-            </View>
+            <StatusBadge 
+              label={statusConfig.label}
+              color={statusConfig.color}
+              bgColor={statusConfig.bgColor}
+            />
           </View>
-
           <Divider style={{ marginVertical: 6 }} />
-
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="account" size={16} color={colors.textSecondary} />
@@ -55,7 +51,7 @@ export function SinisterCard({ sinister }: { sinister: Sinister }) {
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="calendar" size={16} color={colors.textSecondary} />
               <Text variant="bodyMedium" style={{ color: colors.textSecondary }}>
-                {sinister.sinister_datetime}
+                {formatDateTime(sinister.sinister_datetime)}
               </Text>
             </View>
           </View>
@@ -91,15 +87,6 @@ const styles = StyleSheet.create({
   vehiclePlate: {
     color: colors.text,
     fontWeight: "600",
-  },
-  statusBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-  },
-  statusText: {
-    fontWeight: "600",
-    fontSize: 12,
   },
   detailsContainer: {
     gap: 8,

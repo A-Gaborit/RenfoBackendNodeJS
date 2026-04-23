@@ -13,7 +13,7 @@ module.exports = {
         sinister_datetime: new Date('2024-01-01T09:30:00Z'),
         context: 'Accident sur la rocade',
         driver_responsability: true,
-        driver_engaged_responsability: 0,
+        driver_engaged_responsability: 50,
         validated: false,
         user_id: 1
       },
@@ -26,7 +26,7 @@ module.exports = {
         sinister_datetime: new Date('2024-01-02T13:45:00Z'),
         context: 'Collision à un carrefour',
         driver_responsability: false,
-        driver_engaged_responsability: 50,
+        driver_engaged_responsability: 0,
         validated: true,
         user_id: 1
       },
@@ -39,7 +39,7 @@ module.exports = {
         sinister_datetime: new Date('2024-01-03T15:30:00Z'),
         context: 'Sortie de route',
         driver_responsability: true,
-        driver_engaged_responsability: 0,
+        driver_engaged_responsability: 100,
         validated: false,
         user_id: 2
       },
@@ -52,7 +52,7 @@ module.exports = {
         sinister_datetime: new Date('2024-01-04T09:15:00Z'),
         context: 'Accident parking',
         driver_responsability: false,
-        driver_engaged_responsability: 100,
+        driver_engaged_responsability: 0,
         validated: true,
         user_id: 2
       },
@@ -65,7 +65,7 @@ module.exports = {
         sinister_datetime: new Date('2024-01-05T11:00:00Z'),
         context: 'Collision arrière sur autoroute',
         driver_responsability: true,
-        driver_engaged_responsability: 0,
+        driver_engaged_responsability: 100,
         validated: false,
         user_id: 2
       },
@@ -78,7 +78,7 @@ module.exports = {
         sinister_datetime: new Date('2024-01-06T15:30:00Z'),
         context: 'Accident avec piéton',
         driver_responsability: true,
-        driver_engaged_responsability: 25,
+        driver_engaged_responsability: 50,
         validated: true,
         user_id: 2
       },
@@ -91,7 +91,7 @@ module.exports = {
         sinister_datetime: new Date('2024-01-06T22:30:00Z'),
         context: 'Accident nocturne',
         driver_responsability: false,
-        driver_engaged_responsability: 75,
+        driver_engaged_responsability: 0,
         validated: false,
         user_id: 1
       },
@@ -116,8 +116,8 @@ module.exports = {
         call_datetime: new Date('2024-01-09T17:00:00Z'),
         sinister_datetime: new Date('2024-01-09T16:45:00Z'),
         context: 'Accident avec véhicule volé',
-        driver_responsability: true,
-        driver_engaged_responsability: 100,
+        driver_responsability: false,
+        driver_engaged_responsability: 0,
         validated: false,
         user_id: 1
       },

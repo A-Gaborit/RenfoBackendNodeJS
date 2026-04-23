@@ -29,16 +29,16 @@ export default function Index() {
 
         <View style={styles.sectionsContainer}>
           <SectionCard
-            title="Mes Sinistres"
-            subtitle="Consulter l'historique de vos sinistres déclarés"
+            title="Mes sinistres"
+            subtitle="Consultez l'historique de vos sinistres déclarés"
             icon="car-crash"
             color={colors.error}
             onPress={() => router.push('/sinisters' as any)}
           />
 
           <SectionCard
-            title="Mes Dossiers de Prise en Charge"
-            subtitle="Accéder à vos dossiers et documents médicaux"
+            title="Mes dossiers"
+            subtitle="Consultez vos dossiers pour voir leur avancement"
             icon="file-document-outline"
             color={colors.primary}
             onPress={() => router.push('/requests' as any)}

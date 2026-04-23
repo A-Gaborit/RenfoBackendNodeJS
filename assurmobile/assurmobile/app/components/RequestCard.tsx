@@ -25,7 +25,6 @@ export function RequestCard({ request }: { request: Request }) {
   return (
     <TouchableOpacity
       onPress={() => router.push(`/requests/${request.id}` as any)}
-      activeOpacity={0.8}
     >
       <Card style={styles.card}>
         <Card.Content>

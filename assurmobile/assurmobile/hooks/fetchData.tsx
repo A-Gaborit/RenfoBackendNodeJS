@@ -26,15 +26,18 @@ export async function fetchData(path: string, method: string, body?: Object, use
         : {})
   })
   .then(async response => {
-    if (response.status === 401 || response.status === 403) {
-      console.log('Error, access denied');
-      router.push('/login');
-      return;
+    // if (response.status === 401 || response.status === 403) {
+    //   console.log('Error, access denied');
+    //   router.push('/login');
+    //   return;
+    // }
+    if (!response.ok) {
+      const { message } = await response.json();
+      throw new Error(message);
     }
     return response.json();
   })
   .catch(error => {
-    console.error('Error on fetch', error.message);
-    return 'Error on fetch: ' + error.message;    
+    throw error;
   });
 };

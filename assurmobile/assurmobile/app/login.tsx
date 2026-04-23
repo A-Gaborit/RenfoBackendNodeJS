@@ -11,6 +11,11 @@ import { AppButton } from "./components/AppButton";
 import { AppInput } from "./components/AppInput";
 
 import { UserContext } from "@/contexts/UserContext";
+import { fetchData } from "@/hooks/fetchData";
+
+type JwtPayload = {
+    user: {}
+}
 
 export default function LoginScreen() {
     const router = useRouter(); 
@@ -22,25 +27,15 @@ export default function LoginScreen() {
 
     const login = async () => {
         try {
-            const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/auth/login`, {
-                method: "POST",
-                headers: {
-                    "Content-type": "application/json"
-                },
-                body: JSON.stringify({
-                    email,
-                    password,
-                }),
-            });
-            if (!response.ok) {
-                setError("Identifiants incorrects");
-                return;
-            }
-            const { token } = await response.json();
-            await AsyncStorage.setItem('token', token); 
-            const { user } = jwtDecode(token);
-            setUser(user);
-            router.push('/');
+            const { token } = await fetchData('/auth/login', 'POST', {
+                email,
+                password,
+            }, false)
+            await AsyncStorage.setItem('token', token)
+            const { user } = jwtDecode<JwtPayload>(token)
+            setUser(user)
+            setError(null)
+            router.push({ pathname: '/' })
         } catch (error: any) {
             setError(error.message);
         }
@@ -90,6 +85,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         justifyContent: 'center',
+        alignItems: 'center',
         backgroundColor: colors.background,
         padding: 20,
     },
