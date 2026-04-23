@@ -11,6 +11,10 @@ module.exports = {
       {
         sinister_id: 2,
         status: 'REQUEST_EXPERTISE'
+      },
+      {
+        sinister_id: 3,
+        status: 'INITIATE'
       }
     ]);
   },

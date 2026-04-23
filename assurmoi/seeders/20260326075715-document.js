@@ -13,6 +13,16 @@ module.exports = {
         type: 'VEHICLE_REGISTRATION',
         path: '/documents/vehicle_registration.pdf',
         validated: false
+      },
+      {
+        type: 'INSURANCE_CERTIFICATE',
+        path: '/documents/insurance_certificate.pdf',
+        validated: true
+      },
+      {
+        type: 'INSURED_RIB',
+        path: '/documents/rib.pdf',
+        validated: false
       }
     ]);
   },

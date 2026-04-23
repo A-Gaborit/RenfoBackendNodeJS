@@ -1,10 +1,16 @@
+import { useContext, useState } from "react";
 import { View, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { Card, HelperText, Text, TextInput } from "react-native-paper";
-import { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { colors } from "./theme";
-import { AppButton, AppInput } from "./components";
 import { useRouter } from "expo-router";
+import { jwtDecode } from "jwt-decode";
+
+import { colors } from "./theme";
+
+import { AppButton } from "./components/AppButton";
+import { AppInput } from "./components/AppInput";
+
+import { UserContext } from "@/contexts/UserContext";
 
 export default function LoginScreen() {
     const router = useRouter(); 
@@ -12,6 +18,7 @@ export default function LoginScreen() {
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const { setUser } = useContext(UserContext)!;
 
     const login = async () => {
         try {
@@ -31,6 +38,8 @@ export default function LoginScreen() {
             }
             const { token } = await response.json();
             await AsyncStorage.setItem('token', token); 
+            const { user } = jwtDecode(token);
+            setUser(user);
             router.push('/');
         } catch (error: any) {
             setError(error.message);
