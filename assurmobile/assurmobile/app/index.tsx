@@ -1,23 +1,13 @@
-import { ScrollView, View, StyleSheet, TouchableOpacity } from "react-native";
+import { ScrollView, View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
-import { useRootNavigationState, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { useCurrentUser } from "@/contexts/UserContext";
-import { Redirect } from "expo-router";
 import { colors } from "./theme";
-import { useState } from "react";
 import { SectionCard } from "./components/SectionCard";
 
 export default function Index() {
-  const [value, onChangeTitle] = useState("test");
   const router = useRouter();
-  const rootNavigationState = useRootNavigationState();
   const { user } = useCurrentUser();
-
-  if (!user) {
-    return <Redirect href="/login" />;
-  }
-
-  if(rootNavigationState?.key) {
     return (
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         <Text variant="headlineSmall" style={styles.pageTitle}>
@@ -45,8 +35,7 @@ export default function Index() {
           />
         </View>
       </ScrollView>
-    );
-  }
+  );
 }
 
 const styles = StyleSheet.create({

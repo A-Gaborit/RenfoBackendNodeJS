@@ -34,7 +34,9 @@ export function SinisterCard({ sinister }: { sinister: Sinister }) {
               bgColor={statusConfig.bgColor}
             />
           </View>
+
           <Divider style={{ marginVertical: 6 }} />
+          
           <View style={styles.detailsContainer}>
             <View style={styles.detailRow}>
               <MaterialCommunityIcons name="account" size={16} color={colors.textSecondary} />

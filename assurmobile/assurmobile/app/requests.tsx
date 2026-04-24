@@ -34,7 +34,7 @@ export default function RequestsListScreen() {
 
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
-      {requests.length > 0 ? (
+      {requests && requests.length > 0 ? (
         <Text variant="bodyMedium" style={{ marginBottom: 16 }}>
           {requests.length} dossier{requests.length > 1 ? "s" : ""} de prise en charge
         </Text>
@@ -45,7 +45,7 @@ export default function RequestsListScreen() {
       )}
 
       <View style={{ gap: 16 }}>
-        {requests.map((request: any) => (
+        {requests && requests.map((request: any) => (
           <RequestCard key={request.id} request={request} />
         ))}
       </View>

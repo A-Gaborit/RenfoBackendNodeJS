@@ -34,7 +34,7 @@ export default function SinistersListScreen() {
   
   return (
     <ScrollView contentContainerStyle={{ padding: 20 }}>
-      {sinisters.length > 0 ? (
+      {sinisters && sinisters.length > 0 ? (
         <Text variant="bodyMedium" style={{ marginBottom: 16 }}>
           Vous avez {sinisters.length} sinistre{sinisters.length > 1 ? "s" : ""} déclaré{sinisters.length > 1 ? "s" : ""}
         </Text>
@@ -45,7 +45,7 @@ export default function SinistersListScreen() {
       )}
 
       <View style={{ gap: 16 }}>
-        {sinisters.map((sinister: any) => (
+        {sinisters && sinisters.map((sinister: any) => (
           <SinisterCard key={sinister.id} sinister={sinister} />
         ))}
       </View>
