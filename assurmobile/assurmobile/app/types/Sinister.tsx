@@ -1,3 +1,6 @@
+import { Document } from "./Document";
+import { Request } from "./Request";
+
 export interface Sinister {
   id: string;
   license_plate: string;
@@ -10,4 +13,8 @@ export interface Sinister {
   driver_responsability: boolean;
   driver_engaged_responsability: number;
   validated: boolean;
+  cni_driver?: Document;
+  vehicle_registration_certificate?: Document;
+  insurance_certificate?: Document;
+  request?: Request;
 }

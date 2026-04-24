@@ -3,7 +3,7 @@ const { Model, DataTypes } = require('sequelize');
 const User = (dbInstance, DataTypes) => {
     class User extends Model {
         clean() {
-            const { password, ...cleanUser } = this.dataValues;
+            const { password, token, refresh_token, two_step_code, ...cleanUser} = this.dataValues;
             return cleanUser;
         }
     }

@@ -46,9 +46,8 @@ export async function fetchData(path: string, method: string, body?: object, use
 export async function fetchDocument(path: string, method: string, body?: any, useToken?: boolean) {
     const token = await AsyncStorage.getItem('token');
     const endpoint = process.env.EXPO_PUBLIC_API_URL;
-    const headers: Headers = {
-        'Accept': 'application/json',
-        'Content-type': 'multipart/form-data'
+    const headers: any = {
+        'Accept': 'application/json'
     };
     if(token !== undefined && useToken) {
         headers['Authorization'] = 'Bearer ' + token;

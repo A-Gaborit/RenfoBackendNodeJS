@@ -6,12 +6,12 @@ const Sinister = (dbInstance, DataTypes) => {
     static associate(models) {
       Sinister.hasMany(models.Request, {
         foreignKey: 'sinister_id',
-        as: 'Request',
+        as: 'request',
       });
 
       Sinister.hasMany(models.History, {
         foreignKey: 'sinister_id',
-        as: 'History',
+        as: 'history',
       });
 
       Sinister.belongsTo(models.Document, {
@@ -31,7 +31,7 @@ const Sinister = (dbInstance, DataTypes) => {
 
       Sinister.belongsTo(models.User, {
         foreignKey: 'user_id',
-        as: 'User',
+        as: 'user',
       });
     }
   }
