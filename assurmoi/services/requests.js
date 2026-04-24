@@ -6,11 +6,17 @@ const { ROLES } = require('../middlewares/auth');
 const getAllRequests = async (req, res) => {
     try {
         let queryParam = {};
+        let whereClause = {};
+
         if (req.query.status) {
-            queryParam.where = {
-                status: {
-                    [Op.eq]: req.query.status
-                }
+            whereClause.status = {
+                [Op.eq]: req.query.status
+            };
+        }
+
+        if (req.query.sinister) {
+            whereClause.sinister_id = {
+                [Op.eq]: req.query.sinister
             };
         }
 
@@ -20,12 +26,22 @@ const getAllRequests = async (req, res) => {
             });
             const sinisterIds = userSinisters.map(s => s.id);
 
-            queryParam.where = {
-                ...queryParam.where,
-                sinister_id: {
-                    [Op.in]: sinisterIds
+            // Si un filtre sinister est déjà appliqué, on vérifie que l'utilisateur y a accès
+            if (req.query.sinister) {
+                if (!sinisterIds.includes(parseInt(req.query.sinister))) {
+                    return res.status(403).json({
+                        message: 'Access denied. You can only view requests for your own sinisters.'
+                    });
                 }
-            };
+            } else {
+                whereClause.sinister_id = {
+                    [Op.in]: sinisterIds
+                };
+            }
+        }
+
+        if (Object.keys(whereClause).length > 0) {
+            queryParam.where = whereClause;
         }
 
         const requests = await Request.findAll(queryParam);

@@ -16,5 +16,5 @@ export interface Sinister {
   cniDriver?: Document;
   vehicleRegistrationCertificate?: Document;
   insuranceCertificate?: Document;
-  request?: Request;
+  request?: Request[];
 }
