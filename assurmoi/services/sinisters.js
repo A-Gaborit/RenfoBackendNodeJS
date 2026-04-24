@@ -3,6 +3,7 @@ const { ROLES } = require("../middlewares/auth");
 const formidable = require('formidable')
 require('dotenv').config()
 const fs = require('fs');
+const mime = require('mime-types');
 
 const getAllSinisters = async (req, res) => {    
     try {
@@ -63,8 +64,10 @@ const getSinister = async (req, res) => {
             });
         }
 
+        const { cni_driver, vehicle_registration_certificate, insurance_certificate, ...cleanSinister} = sinister.dataValues;
+
         return res.status(200).json({
-            sinister
+            sinister: cleanSinister
         });
     } catch (error) {
         return res.status(500).json({
@@ -211,11 +214,17 @@ const setSinisterDocument = async (req, res) => {
 }
 
 const getFile = (req, res, next) => {
-    if(fs.existsSync(process.env.UPLOAD_DIR + req.params.pathname)) {
-        const readStream = fs.createReadStream(process.env.UPLOAD_DIR + req.params.pathname);
+    const filePath = process.env.UPLOAD_DIR + req.params.pathname;
+    
+    if (fs.existsSync(filePath)) {
+        const mimeType = mime.lookup(filePath) || 'application/octet-stream';
+        res.setHeader('Content-Type', mimeType);
+        res.setHeader('Content-Disposition', 'inline');
+        
+        const readStream = fs.createReadStream(filePath);
         readStream.pipe(res);
     } else {
-        return res.status(404).json({ message: "No file found"});
+        return res.status(404).json({ message: "No file found" });
     }
 }
 

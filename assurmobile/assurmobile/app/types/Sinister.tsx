@@ -13,8 +13,8 @@ export interface Sinister {
   driver_responsability: boolean;
   driver_engaged_responsability: number;
   validated: boolean;
-  cni_driver?: Document;
-  vehicle_registration_certificate?: Document;
-  insurance_certificate?: Document;
+  cniDriver?: Document;
+  vehicleRegistrationCertificate?: Document;
+  insuranceCertificate?: Document;
   request?: Request;
 }

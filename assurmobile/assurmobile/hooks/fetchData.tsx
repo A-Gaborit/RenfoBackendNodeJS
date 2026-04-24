@@ -69,3 +69,25 @@ export async function fetchDocument(path: string, method: string, body?: any, us
         throw Error(error.message)
       })
 }
+
+export async function fetchBlob(path: string, useToken?: boolean) {
+    const token = await AsyncStorage.getItem('token');
+    const endpoint = process.env.EXPO_PUBLIC_API_URL;
+    const headers: any = {};
+    
+    if (token && useToken) {
+        headers['Authorization'] = 'Bearer ' + token;
+    }
+
+    const response = await fetch(endpoint + path, { headers, method: 'GET' });
+    
+    if (!response.ok) {
+        const { message } = await response.json();
+        throw new Error('Erreur : ' + message);
+    }
+
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    const blob = await response.blob();
+    
+    return new Blob([blob], { type: contentType });
+}

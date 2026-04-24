@@ -1,7 +1,7 @@
-import { fetchData, fetchDocument } from "@/hooks/fetchData";
+import { fetchBlob, fetchData, fetchDocument } from "@/hooks/fetchData";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { View, ScrollView, StyleSheet, Platform, TouchableOpacity } from "react-native";
-import { Text, TextInput, Card, Button, HelperText} from "react-native-paper";
+import { View, ScrollView, StyleSheet, Platform, TouchableOpacity,Linking } from "react-native";
+import { Text, HelperText} from "react-native-paper";
 import { useEffect, useState } from "react";
 import * as DocumentPicker from 'expo-document-picker';
 import { useRouter, useLocalSearchParams, RelativePathString } from "expo-router";
@@ -37,6 +37,12 @@ export default function SinisterDetailScreen() {
     { type: 'INSURANCE_CERTIFICATE', label: "Attestation d'assurance", file: null },
   ]);
 
+  const existingDocMap: Record<any, any> = {
+      CNI_DRIVER: sinister?.cniDriver,
+      VEHICLE_REGISTRATION: sinister?.vehicleRegistrationCertificate,
+      INSURANCE_CERTIFICATE: sinister?.insuranceCertificate,
+  };
+
   const pickDocument = async (index: number) => {
     const result = await DocumentPicker.getDocumentAsync({
         multiple: false,
@@ -49,31 +55,47 @@ export default function SinisterDetailScreen() {
     setDocuments(newDocuments);
   }
 
+  const refreshSinister = () => {
+    if (id) {
+    fetchData(`/sinister/${id}`, 'GET', {}, true)
+      .then(response => {
+          setSinister(response.sinister);
+      })
+      .catch(error => {
+          setUploadError(error.message);
+      });
+    }
+  };
+
   const submitDocument = (index: number) => {
-      const doc = documents[index];
-      const formData = new FormData();
-      formData.append("type", doc.type);
-      if(doc.file) {
-          if(Platform.OS === "web") {
-              const webfile = (doc.file as DocumentPicker.DocumentPickerAsset & {file?: File}).file;
-              if (webfile) formData.append("file", webfile)
-          } else {
-              formData.append("file", {
-                  uri: doc.file.uri,
-                  name: doc.file.name,
-                  type: doc.file.mimeType || 'application/octet-stream'
-              } as unknown as Blob)
-          }
-          setUploadError(null);
-          fetchDocument('/sinister/'+id+'/document', 'POST', formData, true)
-              .then(response => console.log(response))
-              .catch(error => {
-                  console.log(error),
-                  setUploadError(error.message)
-              })
-      } else {
-          setUploadError('Pas de fichier sélectionné');
-      }
+    const doc = documents[index];
+    const formData = new FormData();
+    formData.append("type", doc.type);
+    if(doc.file) {
+        if(Platform.OS === "web") {
+            const webfile = (doc.file as DocumentPicker.DocumentPickerAsset & {file?: File}).file;
+            if (webfile) formData.append("file", webfile)
+        } else {
+            formData.append("file", {
+                uri: doc.file.uri,
+                name: doc.file.name,
+                type: doc.file.mimeType || 'application/octet-stream'
+            } as unknown as Blob)
+        }
+        setUploadError(null);
+        fetchDocument('/sinister/'+id+'/document', 'POST', formData, true)
+            .then(response => {
+                const newDocuments = [...documents];
+                newDocuments[index].file = null;
+                setDocuments(newDocuments);
+                refreshSinister();
+            })
+            .catch(error => {
+                setUploadError(error.message)
+            })
+    } else {
+        setUploadError('Pas de fichier sélectionné');
+    }
   }
 
   useEffect(() => {
@@ -98,6 +120,15 @@ export default function SinisterDetailScreen() {
       />
     );
   }
+  const viewDocument = async (path: string) => {
+    try {
+        const blob = await fetchBlob(`/sinister/download-docs/${path}`, true);
+        const url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+    } catch (error: any) {
+        setUploadError(error.message);
+    }
+  };
 
   const statusConfig = getValidationConfig(sinister.validated);
   const responsibilityConfig = getResponsibilityConfig(sinister.driver_responsability, sinister.driver_engaged_responsability);
@@ -165,40 +196,83 @@ export default function SinisterDetailScreen() {
         )}
       </InfoCard>
 
-      <InfoCard title="Documents requis">
-        {documents.map((doc, index) => (
-          <View key={doc.type} style={styles.documentRow}>
-            <Text variant="bodyMedium" style={styles.documentLabel}>{doc.label}</Text>
-            <View style={styles.documentUploadRow}>
-              <TouchableOpacity
-                style={styles.fileSelector}
-                onPress={() => pickDocument(index)}
-              >
-                <MaterialCommunityIcons
-                  name="cloud-upload-outline"
-                  size={20}
-                  color={colors.primary}
-                />
-                <Text
-                  variant="bodySmall"
-                  style={styles.fileNameText}
-                  numberOfLines={1}
-                  ellipsizeMode="middle"
-                >
-                  {doc.file ? doc.file.name : 'Choisir un fichier'}
-                </Text>
-              </TouchableOpacity>
-              {doc.file && (
-                <TouchableOpacity
-                  style={styles.sendButton}
-                  onPress={() => submitDocument(index)}
-                >
-                  <MaterialCommunityIcons name="send" size={18} color={colors.white} />
-                </TouchableOpacity>
-              )}
-            </View>
-          </View>
-        ))}
+     <InfoCard title="Documents requis">
+        {documents.map((doc, index) => {
+            const existing = existingDocMap[doc.type];
+            return (
+                <View key={doc.type} style={[
+                    styles.documentRow,
+                    existing?.validated && styles.documentRowSuccess
+                ]}>
+                    <View style={styles.documentLabelRow}>
+                        <Text variant="bodyMedium" style={styles.documentLabel}>{doc.label}</Text>
+                        {existing && (
+                            <StatusBadge
+                                label={existing.validated ? "Reçu ✓" : "En attente"}
+                                color={existing.validated ? "#15803D" : "#B45309"}
+                                bgColor={existing.validated ? "#86EFAC" : "#FEF3C7"}
+                            />
+                        )}
+                    </View>
+                    <View style={styles.documentUploadRow}>
+                        {existing?.validated ? (
+                            <TouchableOpacity
+                                style={styles.viewDocumentButton}
+                                onPress={() => viewDocument(existing.path)}
+                            >
+                                <MaterialCommunityIcons name="file-check" size={20} color="#15803D" />
+                                <Text variant="bodySmall" style={styles.viewDocumentText}>
+                                    Document reçu - Cliquez pour visualiser
+                                </Text>
+                            </TouchableOpacity>
+                        ) : (
+                            <>
+                                <TouchableOpacity
+                                    style={[
+                                        styles.fileSelector,
+                                        existing && styles.fileSelectorPending
+                                    ]}
+                                    onPress={() => pickDocument(index)}
+                                >
+                                    <MaterialCommunityIcons
+                                        name={existing ? "file-sync" : "cloud-upload-outline"}
+                                        size={20}
+                                        color={existing ? "#B45309" : colors.primary}
+                                    />
+                                    <Text
+                                        variant="bodySmall"
+                                        style={[
+                                            styles.fileNameText,
+                                            existing && { color: "#B45309" }
+                                        ]}
+                                        numberOfLines={1}
+                                        ellipsizeMode="middle"
+                                    >
+                                        {doc.file ? doc.file.name : (existing ? 'Remplacer le fichier' : 'Choisir un fichier')}
+                                    </Text>
+                                </TouchableOpacity>
+                                {doc.file && (
+                                    <TouchableOpacity
+                                        style={styles.sendButton}
+                                        onPress={() => submitDocument(index)}
+                                    >
+                                        <MaterialCommunityIcons name="send" size={18} color={colors.white} />
+                                    </TouchableOpacity>
+                                )}
+                                {existing && !doc.file && (
+                                    <TouchableOpacity
+                                        style={styles.viewButton}
+                                        onPress={() => viewDocument(existing.path)}
+                                    >
+                                        <MaterialCommunityIcons name="eye" size={18} color="#B45309" />
+                                    </TouchableOpacity>
+                                )}
+                            </>
+                        )}
+                    </View>
+                </View>
+            );
+        })}
         <HelperText type="error" visible={Boolean(uploadError)}>
           {uploadError}
         </HelperText>
@@ -247,6 +321,15 @@ const styles = StyleSheet.create({
   documentRow: {
     gap: 8,
     marginBottom: 20,
+    padding: 12,
+    borderRadius: 12,
+    backgroundColor: colors.white,
+    borderWidth: 1,
+    borderColor: '#E5E7EB',
+  },
+  documentRowSuccess: {
+    backgroundColor: '#F0FDF4',
+    borderColor: '#86EFAC',
   },
   documentLabel: {
     fontWeight: '500',
@@ -270,6 +353,10 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     borderRadius: 10,
   },
+  fileSelectorPending: {
+    borderColor: '#F59E0B',
+    backgroundColor: '#FFFBEB',
+  },
   fileNameText: {
     flex: 1,
     color: colors.text,
@@ -281,5 +368,36 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     minWidth: 46,
+  },
+  documentLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  viewButton: {
+    borderWidth: 2,
+    borderColor: '#F59E0B',
+    padding: 10,
+    borderRadius: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 46,
+  },
+  viewDocumentButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: '#DCFCE7',
+    borderWidth: 2,
+    borderColor: '#22C55E',
+    borderRadius: 10,
+  },
+  viewDocumentText: {
+    flex: 1,
+    color: '#15803D',
+    fontWeight: '500',
   },
 });
