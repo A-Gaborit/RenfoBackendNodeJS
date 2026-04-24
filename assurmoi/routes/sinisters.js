@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { validateAuthentication, authorizeRoles, ROLES } = require("../middlewares/auth");
+const { validateCreateSinister, validateUpdateSinister } = require("../middlewares/validation");
 
 const {
     getAllSinisters,
@@ -18,9 +19,9 @@ router.get('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGE
 
 router.get('/:id', validateAuthentication,authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER, ROLES.POLICYHOLDER), getSinister);
 
-router.post('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), createSinister);
+router.post('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), validateCreateSinister, createSinister);
 
-router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), updateSinister);
+router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), validateUpdateSinister, updateSinister);
 
 router.patch('/:id/validate', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER), validateSinister);
 

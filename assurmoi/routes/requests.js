@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const { validateAuthentication, authorizeRoles, ROLES } = require("../middlewares/auth");
+const { validateUpdateRequest } = require("../middlewares/validation");
 
 const { 
     getAllRequests, 
@@ -17,7 +18,7 @@ router.get('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MAN
 
 router.get('/:id/transitions', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR, ROLES.POLICYHOLDER), getRequestTransitions);
 
-router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR), updateRequest);
+router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR), validateUpdateRequest, updateRequest);
 
 router.patch('/:id/transition', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.COORDINATOR), transitionRequest);
 

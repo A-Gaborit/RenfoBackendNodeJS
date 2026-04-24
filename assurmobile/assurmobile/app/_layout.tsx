@@ -28,6 +28,8 @@ export default function RootLayout() {
             screenOptions={{
               headerStyle: {
                 backgroundColor: colors.primary,
+                borderBottomRightRadius: 10,
+                borderBottomLeftRadius: 10,
               },
               headerTintColor: colors.white,
               headerTitleStyle: {

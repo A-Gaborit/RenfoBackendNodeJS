@@ -100,8 +100,6 @@ const verify2FA = async (req, res) => {
 const forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
-
-        if (!email) return res.status(400).json({ message: "L'email est requis" });
         
         const user = await User.findOne({ where: { email } });
 
@@ -132,10 +130,6 @@ const forgotPassword = async (req, res) => {
 const resetPassword = async (req, res) => {
     try {
         const { token, password } = req.body;
-
-        if (!token || !password) return res.status(400).json({ message: "Le token et le nouveau mot de passe sont requis" });
-
-        if (password.length < 6) return res.status(400).json({ message: "Le mot de passe doit contenir au moins 6 caractères" });
 
         let decoded;
         try {
