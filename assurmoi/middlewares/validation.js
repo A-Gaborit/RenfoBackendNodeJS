@@ -169,6 +169,35 @@ const validateUpdateRequest = [
     handleValidationErrors
 ];
 
+const validateUpdateUser = [
+    checkSchema({
+        username: {
+            optional: true,
+            notEmpty: { errorMessage: "Le nom d'utilisateur ne peut pas être vide" }
+        },
+        firstname: {
+            optional: true,
+            notEmpty: { errorMessage: "Le prénom ne peut pas être vide" }
+        },
+        lastname: {
+            optional: true,
+            notEmpty: { errorMessage: "Le nom ne peut pas être vide" }
+        },
+        email: {
+            optional: true,
+            isEmail: { errorMessage: "L'email doit être valide" }
+        },
+        password: {
+            optional: true,
+            isLength: {
+                options: { min: 6 },
+                errorMessage: "Le mot de passe doit contenir au moins 6 caractères"
+            }
+        }
+    }),
+    handleValidationErrors
+];
+
 module.exports = {
     validateLogin,
     validateForgotPassword,
@@ -176,5 +205,6 @@ module.exports = {
     validateCreateSinister,
     validateUpdateSinister,
     validateUpdateRequest,
+    validateUpdateUser,
     handleValidationErrors
 };

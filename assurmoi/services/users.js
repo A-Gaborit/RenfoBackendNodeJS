@@ -64,6 +64,8 @@ const updateUser = async (req, res) => {
         const user = await User.findOne({
             where: { id: user_id }
         }, { transaction });
+
+        user.username = username;
         user.firstname = firstname;
         user.lastname = lastname;
         user.email = email;

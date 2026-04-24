@@ -3,6 +3,7 @@ const router = express.Router();
 
 const { validateUsername } = require("../middlewares/user");
 const { validateAuthentication, authorizeRoles, ROLES } = require("../middlewares/auth");
+const { validateUpdateUser } = require("../middlewares/validation");
 const { 
     getAllUsers, 
     getUser, 
@@ -19,6 +20,6 @@ router.get('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN), getUser)
 
 router.delete('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN), deactivateUser);
 
-router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN), updateUser);
+router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN), validateUpdateUser, updateUser);
 
 module.exports = router;
