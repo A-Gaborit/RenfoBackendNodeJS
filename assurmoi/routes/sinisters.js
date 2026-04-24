@@ -8,7 +8,9 @@ const {
     getSinister,
     createSinister,
     updateSinister,
-    validateSinister
+    validateSinister,
+    setSinisterDocument,
+    getFile
 } = require('../services/sinisters');
 
 
@@ -21,5 +23,9 @@ router.post('/', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAG
 router.put('/:id', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER, ROLES.ACCOUNT_MANAGER), updateSinister);
 
 router.patch('/:id/validate', validateAuthentication, authorizeRoles(ROLES.ADMIN, ROLES.MANAGER), validateSinister);
+
+router.post('/:id/document', validateAuthentication, setSinisterDocument);
+
+router.get('/download-docs/:pathname', validateAuthentication, getFile);
 
 module.exports = router;

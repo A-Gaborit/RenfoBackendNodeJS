@@ -1,5 +1,10 @@
 const { Sinister, Request, dbInstance } = require("../models");
 const { ROLES } = require("../middlewares/auth");
+const formidable = require('formidable')
+require('dotenv').config()
+const fs = require('fs');
+
+const UPLOAD_DIR = './uploads/'
 
 const getAllSinisters = async (req, res) => {    
     try {
@@ -141,10 +146,54 @@ const validateSinister = async (req, res) => {
     }
 }
 
+const setSinisterDocument = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const form = new formidable.IncomingForm();
+        const filepath = await form.parse(req, (err, field, files) => {
+            if (err) throw new Error(err[0]);
+            const oldpath = files.file[0].filepath;
+            const filename = Date.now().toString() + '-' + files.file[0].originalFilename;
+            const newpath = UPLOAD_DIR + filename;
+            if(!fs.existsSync(UPLOAD_DIR)) {
+                fs.mkdirSync(UPLOAD_DIR)
+            }
+            fs.copyFile(oldpath, newpath, (err) => {
+                if (err) throw new Error(err[0]);
+                // complète une table document à partir du fichier récupéré
+                // ou compléter le path dans la table sinitre selon implémentation
+
+                res.status(201).json({
+                    message: 'Success',
+                    filename
+                });
+                res.end();
+            });
+        });
+    } catch (err) {
+        return res.status(400).json({
+            message: 'Error on fileupload',
+            err
+        })
+    }
+}
+
+const getFile = (req, res, next) => {
+    if(fs.existsSync(UPLOAD_DIR + req.params.pathname)) {
+        const readStream = fs.createReadStream(UPLOAD_DIR + req.params.pathname);
+        readStream.pipe(res);
+    } else {
+        return res.status(404).json({ message: "No file found"});
+    }
+}
+
 module.exports = {
     getAllSinisters,
     getSinister,
     createSinister,
     updateSinister,
-    validateSinister
+    validateSinister,
+    setSinisterDocument,
+    getFile
 }

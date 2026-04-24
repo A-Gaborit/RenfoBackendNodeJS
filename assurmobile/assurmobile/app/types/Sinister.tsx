@@ -10,6 +10,4 @@ export interface Sinister {
   driver_responsability: boolean;
   driver_engaged_responsability: number;
   validated: boolean;
-  created_at?: string;
-  updated_at?: string;
 }

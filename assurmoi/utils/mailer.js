@@ -35,10 +35,8 @@ const mailLogin = async (user) => {
             text: `Bonjour ${user.firstname} ${user.lastname}`,
             html: `<h2>Bonjour ${user.firstname} ${user.lastname}</h2><br><p>Une nouvelle connexion à votre compte a été effectuée.</p>`
         });
-        console.log(result);
         return true;
     } catch (error) {
-        console.log(error);
         return error;
     }
 }

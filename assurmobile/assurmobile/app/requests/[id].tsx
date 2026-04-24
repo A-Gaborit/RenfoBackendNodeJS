@@ -92,24 +92,7 @@ export default function RequestDetailScreen() {
           iconColor={request.closed ? colors.error : colors.primary}
         />
       </InfoCard>
-
-      {request.created_at && (
-        <InfoCard title="Historique">
-          <InfoRow 
-            icon="calendar-plus"
-            label="Date de création"
-            value={formatDate(request.created_at)}
-          />
-          {request.updated_at && (
-            <InfoRow 
-              icon="calendar-edit"
-              label="Dernière modification"
-              value={formatDate(request.updated_at)}
-            />
-          )}
-        </InfoCard>
-      )}
-
+      
       <AppButton
         onPress={() => router.push(`/sinisters/${request.sinister_id}` as RelativePathString)}
       >
