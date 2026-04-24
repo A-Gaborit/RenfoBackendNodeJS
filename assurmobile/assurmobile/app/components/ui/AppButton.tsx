@@ -1,14 +1,12 @@
 import { Button } from "react-native-paper";
-import { colors } from "../theme";
+import { colors } from "../../theme";
 
-interface AppButtonProps {
+export function AppButton({ onPress, children, mode = "contained", style }: {
     onPress: () => void;
     children: string;
     mode?: "contained" | "outlined" | "text";
     style?: any;
-}
-
-export function AppButton({ onPress, children, mode = "contained", style }: AppButtonProps) {
+}) {
     return (
         <Button
             mode={mode}

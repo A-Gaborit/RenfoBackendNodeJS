@@ -7,4 +7,5 @@ export const colors = {
     text: '#1A1A2E',
     textSecondary: '#6B6B80',
     error: '#FF6B6B',
+    success: '#4CAF50',
 };

@@ -9,7 +9,10 @@ function AuthGuard({ children }: { children: React.ReactNode }) {
   const { user } = useCurrentUser();
   const pathname = usePathname();
 
-  if (!user && pathname !== '/login') {
+  const publicPaths = ['/login', '/forgot-password', '/reset-password'];
+  const isPublicPath = publicPaths.some(path => pathname === path || pathname.startsWith(`${path}?`));
+
+  if (!user && !isPublicPath) {
     return <Redirect href="/login" />;
   }
 
@@ -41,6 +44,8 @@ export default function RootLayout() {
             <Stack.Screen name="sinisters/[id]" options={{ title: "Détails d'un sinistre" }} />
             <Stack.Screen name="requests" options={{ title: "Mes Dossiers" }} />
             <Stack.Screen name="requests/[id]" options={{ title: "Détails d'un dossier" }} />
+            <Stack.Screen name="forgot-password" options={{ title: "Mot de passe oublié", headerShown: false }} />
+            <Stack.Screen name="reset-password" options={{ title: "Réinitialiser le mot de passe", headerShown: false }} />
           </Stack>
         </AuthGuard>
       </UserProvider>

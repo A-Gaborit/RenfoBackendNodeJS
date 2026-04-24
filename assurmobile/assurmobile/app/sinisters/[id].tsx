@@ -15,7 +15,7 @@ import { InfoRow } from "../components/ui/InfoRow";
 import { StatusBadge } from "../components/ui/StatusBadge";
 import { formatDate } from "../components/ui/DateFormatter";
 import { ErrorState } from "../components/ui/ErrorState";
-import { AppButton } from "../components/AppButton";
+import { AppButton } from "../components/ui/AppButton";
 
 type DocumentType = 'CNI_DRIVER' | 'VEHICLE_REGISTRATION' | 'INSURANCE_CERTIFICATE';
 

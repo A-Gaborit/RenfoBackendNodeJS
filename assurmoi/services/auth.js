@@ -1,7 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
-const { mailLogin } = require('../utils/mailer');
+const { mailLogin, mailPasswordReset } = require('../utils/mailer');
 require('dotenv').config();
 
 const login = async (req, res) => {
@@ -97,34 +97,81 @@ const verify2FA = async (req, res) => {
     });
 };
 
-const forgotPassword = async (req, res) => {    
-    const { email } = req.body;
+const forgotPassword = async (req, res) => {
+    try {
+        const { email } = req.body;
 
-    return res.status(200).json({
-        message: "Password reset email sent",
-        email: email,
-        resetToken: "fake-reset-token-67890"
-    });
+        if (!email) return res.status(400).json({ message: "L'email est requis" });
+        
+        const user = await User.findOne({ where: { email } });
+
+        if (!user) return res.status(200).json({ message: "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé." });
+
+        const resetToken = jwt.sign(
+            { userId: user.id, email: user.email, type: 'password-reset' },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        user.refresh_token = resetToken;
+        await user.save();
+
+        const mailStatus = await mailPasswordReset(user, resetToken);
+        if (mailStatus !== true) console.error("Password reset email failed to send:", mailStatus);
+
+        return res.status(200).json({
+            message: "Si un compte existe avec cet email, un lien de réinitialisation a été envoyé."
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Une erreur est survenue lors de la demande de réinitialisation."
+        });
+    }
 };
 
 const resetPassword = async (req, res) => {
-    const { password } = req.body;
-    const token = req.headers.authorization;
-    
-    if (!token || !password) {
-        return res.status(400).json({
-            message: "Token and new password are required"
+    try {
+        const { token, password } = req.body;
+
+        if (!token || !password) return res.status(400).json({ message: "Le token et le nouveau mot de passe sont requis" });
+
+        if (password.length < 6) return res.status(400).json({ message: "Le mot de passe doit contenir au moins 6 caractères" });
+
+        let decoded;
+        try {
+            decoded = jwt.verify(token, process.env.JWT_SECRET);
+        } catch (err) {
+            return res.status(401).json({ message: "Token invalide ou expiré" });
+        }
+
+        if (decoded.type !== 'password-reset') {
+            return res.status(401).json({ message: "Token invalide" });
+        }
+
+        const user = await User.findOne({
+            where: {
+                id: decoded.userId,
+                refresh_token: token
+            }
         });
-    }
-    if (token === "Bearer fake-reset-token-67890") {
+
+        if (!user) return res.status(401).json({ message: "Token invalide ou déjà utilisé" });
+
+        const hashedPassword = await bcrypt.hash(password, parseInt(process.env.BCRYPT_SALT) || 10);
+
+        user.password = hashedPassword;
+        user.refresh_token = null;
+        await user.save();
+
         return res.status(200).json({
-            message: "Password reset successful"
+            message: "Votre mot de passe a été réinitialisé avec succès"
+        });
+    } catch (error) {
+        console.error("Reset password error:", error);
+        return res.status(500).json({
+            message: "Une erreur est survenue lors de la réinitialisation du mot de passe"
         });
     }
-    
-    return res.status(401).json({
-        message: "Invalid or expired reset token"
-    });
 };
 
 module.exports = {

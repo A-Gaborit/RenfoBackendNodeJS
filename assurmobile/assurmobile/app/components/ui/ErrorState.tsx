@@ -2,7 +2,7 @@ import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors } from "../../theme";
-import { AppButton } from "../AppButton";
+import { AppButton } from "../ui/AppButton";
 
 interface ErrorStateProps {
   title: string;

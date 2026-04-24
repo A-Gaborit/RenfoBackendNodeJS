@@ -6,7 +6,7 @@ import { fetchData } from "@/hooks/fetchData";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { colors } from "../theme";
 import { Request } from "../types/Request";
-import { AppButton } from "../components/AppButton";
+import { AppButton } from "../components/ui/AppButton";
 import { getRequestStatusConfig } from "../components/ui/RequestStatusConfig";
 import { InfoCard } from "../components/ui/InfoCard";
 import { InfoRow } from "../components/ui/InfoRow";
